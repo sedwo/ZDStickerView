@@ -5,8 +5,10 @@
 // Copyright (c) 2013 scipi. All rights reserved.
 //
 
-#import "ZDStickerView.h"
 #import <QuartzCore/QuartzCore.h>
+#import "ZDStickerView.h"
+#import "SPGripViewBorderView.h"
+
 
 #define kSPUserResizableViewGlobalInset 5.0
 #define kSPUserResizableViewDefaultMinWidth 48.0
@@ -14,7 +16,10 @@
 #define kZDStickerViewControlSize 36.0
 
 
+
 @interface ZDStickerView ()
+
+@property (nonatomic, strong) SPGripViewBorderView *borderView;
 
 @property (strong, nonatomic) UIImageView *resizingControl;
 @property (strong, nonatomic) UIImageView *deleteControl;
@@ -90,11 +95,14 @@
 {
     if ([recognizer state] == UIGestureRecognizerStateBegan)
     {
+        [self enableTransluceny:YES];
         self.prevPoint = [recognizer locationInView:self];
         [self setNeedsDisplay];
     }
     else if ([recognizer state] == UIGestureRecognizerStateChanged)
     {
+        [self enableTransluceny:YES];
+
         if (self.bounds.size.width < self.minWidth || self.bounds.size.height < self.minHeight)
         {
             self.bounds = CGRectMake(self.bounds.origin.x,
@@ -153,13 +161,14 @@
             self.transform = CGAffineTransformMakeRotation(-angleDiff);
         }
 
-        borderView.frame = CGRectInset(self.bounds, kSPUserResizableViewGlobalInset, kSPUserResizableViewGlobalInset);
-        [borderView setNeedsDisplay];
+        self.borderView.frame = CGRectInset(self.bounds, kSPUserResizableViewGlobalInset, kSPUserResizableViewGlobalInset);
+        [self.borderView setNeedsDisplay];
 
         [self setNeedsDisplay];
     }
     else if ([recognizer state] == UIGestureRecognizerStateEnded)
     {
+        [self enableTransluceny:NO];
         self.prevPoint = [recognizer locationInView:self];
         [self setNeedsDisplay];
     }
@@ -169,9 +178,9 @@
 
 - (void)setupDefaultAttributes
 {
-    borderView = [[SPGripViewBorderView alloc] initWithFrame:CGRectInset(self.bounds, kSPUserResizableViewGlobalInset, kSPUserResizableViewGlobalInset)];
-    [borderView setHidden:YES];
-    [self addSubview:borderView];
+    self.borderView = [[SPGripViewBorderView alloc] initWithFrame:CGRectInset(self.bounds, kSPUserResizableViewGlobalInset, kSPUserResizableViewGlobalInset)];
+    [self.borderView setHidden:YES];
+    [self addSubview:self.borderView];
 
     if (kSPUserResizableViewDefaultMinWidth > self.bounds.size.width*0.5)
     {
@@ -264,7 +273,11 @@
 {
     [self.contentView removeFromSuperview];
     _contentView = newContentView;
-    self.contentView.frame = CGRectInset(self.bounds, kSPUserResizableViewGlobalInset + kSPUserResizableViewInteractiveBorderSize/2, kSPUserResizableViewGlobalInset + kSPUserResizableViewInteractiveBorderSize/2);
+
+    self.contentView.frame = CGRectInset(self.bounds,
+                                         kSPUserResizableViewGlobalInset + kSPUserResizableViewInteractiveBorderSize/2,
+                                         kSPUserResizableViewGlobalInset + kSPUserResizableViewInteractiveBorderSize/2);
+
     self.contentView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
     [self addSubview:self.contentView];
 
@@ -276,7 +289,7 @@
         subview.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
     }
 
-    [self bringSubviewToFront:borderView];
+    [self bringSubviewToFront:self.borderView];
     [self bringSubviewToFront:self.resizingControl];
     [self bringSubviewToFront:self.deleteControl];
     [self bringSubviewToFront:self.customControl];
@@ -297,9 +310,9 @@
         subview.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
     }
 
-    borderView.frame = CGRectInset(self.bounds,
-                                   kSPUserResizableViewGlobalInset,
-                                   kSPUserResizableViewGlobalInset);
+    self.borderView.frame = CGRectInset(self.bounds,
+                                        kSPUserResizableViewGlobalInset,
+                                        kSPUserResizableViewGlobalInset);
     self.resizingControl.frame =CGRectMake(self.bounds.size.width-kZDStickerViewControlSize,
                                            self.bounds.size.height-kZDStickerViewControlSize,
                                            kZDStickerViewControlSize,
@@ -310,13 +323,20 @@
                                          0,
                                          kZDStickerViewControlSize,
                                          kZDStickerViewControlSize);
-    [borderView setNeedsDisplay];
+    [self.borderView setNeedsDisplay];
 }
 
 
 
 - (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event
 {
+    if ([self isEditingHandlesHidden])
+    {
+        return;
+    }
+
+    [self enableTransluceny:YES];
+
     UITouch *touch = [touches anyObject];
     self.touchStart = [touch locationInView:self.superview];
     if ([self.stickerViewDelegate respondsToSelector:@selector(stickerViewDidBeginEditing:)])
@@ -329,6 +349,8 @@
 
 - (void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event
 {
+    [self enableTransluceny:NO];
+
     // Notify the delegate we've ended our editing session.
     if ([self.stickerViewDelegate respondsToSelector:@selector(stickerViewDidEndEditing:)])
     {
@@ -340,6 +362,8 @@
 
 - (void)touchesCancelled:(NSSet *)touches withEvent:(UIEvent *)event
 {
+    [self enableTransluceny:NO];
+
     // Notify the delegate we've ended our editing session.
     if ([self.stickerViewDelegate respondsToSelector:@selector(stickerViewDidCancelEditing:)])
     {
@@ -391,6 +415,8 @@
         return;
     }
 
+    [self enableTransluceny:YES];
+
     CGPoint touchLocation = [[touches anyObject] locationInView:self];
     if (CGRectContainsPoint(self.resizingControl.frame, touchLocation))
     {
@@ -420,10 +446,11 @@
 
 - (void)hideEditingHandles
 {
+    [self enableTransluceny:NO];
     self.resizingControl.hidden = YES;
     self.deleteControl.hidden = YES;
     self.customControl.hidden = YES;
-    [borderView setHidden:YES];
+    [self.borderView setHidden:YES];
 }
 
 
@@ -457,7 +484,7 @@
         self.resizingControl.hidden = YES;
     }
 
-    [borderView setHidden:NO];
+    [self.borderView setHidden:NO];
 }
 
 
@@ -499,7 +526,21 @@
 
 - (BOOL)isEditingHandlesHidden
 {
-    return borderView.hidden;
+    return self.borderView.hidden;
+}
+
+
+
+- (void)enableTransluceny:(BOOL)state
+{
+    if (state == YES)
+    {
+        self.alpha = 0.65;
+    }
+    else
+    {
+        self.alpha = 1.0;
+    }
 }
 
 

@@ -6,8 +6,6 @@
 //
 
 #import <UIKit/UIKit.h>
-#import "SPGripViewBorderView.h"
-
 
 
 typedef enum {
@@ -20,16 +18,15 @@ typedef enum {
 
 @protocol ZDStickerViewDelegate;
 
+
 @interface ZDStickerView : UIView
-{
-    SPGripViewBorderView *borderView;
-}
 
 @property (nonatomic, strong) UIView *contentView;
-@property (nonatomic) BOOL preventsPositionOutsideSuperview; // default = YES
-@property (nonatomic) BOOL preventsResizing; // default = NO
-@property (nonatomic) BOOL preventsDeleting; // default = NO
-@property (nonatomic) BOOL preventsCustomButton; // default = YES
+
+@property (nonatomic) BOOL preventsPositionOutsideSuperview;    // default = YES
+@property (nonatomic) BOOL preventsResizing;                    // default = NO
+@property (nonatomic) BOOL preventsDeleting;                    // default = NO
+@property (nonatomic) BOOL preventsCustomButton;                // default = YES
 @property (nonatomic) CGFloat minWidth;
 @property (nonatomic) CGFloat minHeight;
 
@@ -41,10 +38,12 @@ typedef enum {
 - (void)showEditingHandles;
 - (void)showCustomHandle;
 - (void)hideCustomHandle;
-- (void)setButton:(ZDSTICKERVIEW_BUTTONS)type image:(UIImage*)image;
+- (void)setButton:(ZDSTICKERVIEW_BUTTONS)type image:(UIImage *)image;
 - (BOOL)isEditingHandlesHidden;
 
 @end
+
+
 
 @protocol ZDStickerViewDelegate <NSObject>
 @required
