@@ -168,7 +168,7 @@
     }
     else if ([recognizer state] == UIGestureRecognizerStateEnded)
     {
-        [self enableTransluceny:NO];
+//        [self enableTransluceny:NO];
         self.prevPoint = [recognizer locationInView:self];
         [self setNeedsDisplay];
     }
@@ -349,7 +349,7 @@
 
 - (void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event
 {
-    [self enableTransluceny:NO];
+//    [self enableTransluceny:NO];
 
     // Notify the delegate we've ended our editing session.
     if ([self.stickerViewDelegate respondsToSelector:@selector(stickerViewDidEndEditing:)])
@@ -362,7 +362,7 @@
 
 - (void)touchesCancelled:(NSSet *)touches withEvent:(UIEvent *)event
 {
-    [self enableTransluceny:NO];
+//    [self enableTransluceny:NO];
 
     // Notify the delegate we've ended our editing session.
     if ([self.stickerViewDelegate respondsToSelector:@selector(stickerViewDidCancelEditing:)])
@@ -457,6 +457,8 @@
 
 - (void)showEditingHandles
 {
+    [self enableTransluceny:YES];
+
     if (NO == self.preventsCustomButton)
     {
         self.customControl.hidden = NO;
