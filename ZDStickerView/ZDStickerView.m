@@ -155,7 +155,9 @@
         /* Rotation */
         float ang = atan2([recognizer locationInView:self.superview].y - self.center.y,
                           [recognizer locationInView:self.superview].x - self.center.x);
+
         float angleDiff = self.deltaAngle - ang;
+
         if (NO == self.preventsResizing)
         {
             self.transform = CGAffineTransformMakeRotation(-angleDiff);
@@ -279,13 +281,15 @@
                                          kSPUserResizableViewGlobalInset + kSPUserResizableViewInteractiveBorderSize/2);
 
     self.contentView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+
     [self addSubview:self.contentView];
 
-    for (UIView*subview in [self.contentView subviews])
+    for (UIView *subview in [self.contentView subviews])
     {
         [subview setFrame:CGRectMake(0, 0,
                                      self.contentView.frame.size.width,
                                      self.contentView.frame.size.height)];
+
         subview.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
     }
 
@@ -300,29 +304,38 @@
 - (void)setFrame:(CGRect)newFrame
 {
     [super setFrame:newFrame];
-    self.contentView.frame = CGRectInset(self.bounds, kSPUserResizableViewGlobalInset + kSPUserResizableViewInteractiveBorderSize/2, kSPUserResizableViewGlobalInset + kSPUserResizableViewInteractiveBorderSize/2);
+    self.contentView.frame = CGRectInset(self.bounds,
+                                         kSPUserResizableViewGlobalInset + kSPUserResizableViewInteractiveBorderSize/2,
+                                         kSPUserResizableViewGlobalInset + kSPUserResizableViewInteractiveBorderSize/2);
+
     self.contentView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
-    for (UIView*subview in [self.contentView subviews])
+
+    for (UIView *subview in [self.contentView subviews])
     {
         [subview setFrame:CGRectMake(0, 0,
                                      self.contentView.frame.size.width,
                                      self.contentView.frame.size.height)];
+
         subview.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
     }
 
     self.borderView.frame = CGRectInset(self.bounds,
                                         kSPUserResizableViewGlobalInset,
                                         kSPUserResizableViewGlobalInset);
+
     self.resizingControl.frame =CGRectMake(self.bounds.size.width-kZDStickerViewControlSize,
                                            self.bounds.size.height-kZDStickerViewControlSize,
                                            kZDStickerViewControlSize,
                                            kZDStickerViewControlSize);
+
     self.deleteControl.frame = CGRectMake(0, 0,
                                           kZDStickerViewControlSize, kZDStickerViewControlSize);
+
     self.customControl.frame =CGRectMake(self.bounds.size.width-kZDStickerViewControlSize,
                                          0,
                                          kZDStickerViewControlSize,
                                          kZDStickerViewControlSize);
+
     [self.borderView setNeedsDisplay];
 }
 
@@ -377,6 +390,7 @@
 {
     CGPoint newCenter = CGPointMake(self.center.x + touchPoint.x - self.touchStart.x,
                                     self.center.y + touchPoint.y - self.touchStart.y);
+
     if (self.preventsPositionOutsideSuperview)
     {
         // Ensure the translation won't cause the view to move offscreen.
